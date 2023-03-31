@@ -19,8 +19,9 @@ LABEL maintainer "Ben Baron <ben@einsteinx2.com>"
 RUN \
     # Install dependencies
     printf "Installing dependencies...\n" \
-    && apk --update add --no-cache bash build-base cmake coreutils curl git libjpeg-turbo-dev libpng-dev linux-headers musl-dev patch python2 subversion texinfo tree wget \
+    && apk --update add --no-cache bash build-base cmake coreutils curl git libjpeg-turbo-dev libpng-dev linux-headers musl-dev patch python3 subversion texinfo tree wget \
 	&& apk --update add --no-cache libelf-dev --repository=http://dl-cdn.alpinelinux.org/alpine/v3.9/main \
+        && ln -sf python3 /usr/bin/python \
 	&& rm -rf /var/cache/apk/* \
     && printf "Done.\n" \
 \

@@ -198,22 +198,32 @@ RUN \
     && gcc makeip.c -o makeip &> $REDIRECT \
     && ln -s $KOS/utils/makeip/makeip $DCTOOLCHAIN/bin/makeip \
     && cd $KOS/utils \ 
-    && git clone https://github.com/einsteinx2/img4dc.git &> $REDIRECT \
+    && git clone https://github.com/Kazade/img4dc.git &> $REDIRECT \
     && cd $KOS/utils/img4dc \
     && cmake . &> $REDIRECT \
     && make cdi4dc &> $REDIRECT \
     && ln -s $KOS/utils/img4dc/cdi4dc/cdi4dc $DCTOOLCHAIN/bin/cdi4dc \
+    && make mds4dc &> $REDIRECT \
+    && ln -s $KOS/utils/img4dc/mds4dc/mds4dc $DCTOOLCHAIN/bin/mds4dc \
     && cd $KOS/utils \ 
+    && mkdir -p $DCTOOLCHAIN/target/dcload-ip \
     && git clone https://github.com/sizious/dcload-ip.git &> $REDIRECT \
     && cd $KOS/utils/dcload-ip \
-    && make install \
+    && make all install \
+    && cp target-src/1st_read/{1st_read.bin,loader.bin} $DCTOOLCHAIN/target/dcload-ip/ \
+    && cd $KOS/utils \
+    && mkdir -p $DCTOOLCHAIN/target/dcload-serial \
+    && git clone https://github.com/sizious/dcload-serial.git &> $REDIRECT \
+    && cd $KOS/utils/dcload-serial \
+    && make all install \
+    && cp target-src/1st_read/{1st_read.bin,loader.bin} $DCTOOLCHAIN/target/dcload-serial/ \
     && printf "Done.\n"
 RUN \
     # Prepare files to copy in next stage
     . /tmp/dockerenv.sh \
     && printf "Preparing files to copy to next stage...$NL" \
     && mkdir /tmp/copy \
-    && mv $DCTOOLCHAIN/sh-elf $DCTOOLCHAIN/arm-eabi $DCTOOLCHAIN/kos $DCTOOLCHAIN/kos-ports $DCTOOLCHAIN/bin /tmp/copy \
+    && mv $DCTOOLCHAIN/sh-elf $DCTOOLCHAIN/arm-eabi $DCTOOLCHAIN/kos $DCTOOLCHAIN/kos-ports $DCTOOLCHAIN/bin $DCTOOLCHAIN/target /tmp/copy \
     && mv /tmp/dockerenv.sh /root/.bashrc /tmp/copy \
     && printf "Done.\n"
 
@@ -244,8 +254,9 @@ RUN \
     && printf "Installing useful tools for building Dreamcast projects...$NL" \
     && apk --update add --no-cache \
        bash bison bzip2 cdrkit cmake colordiff coreutils curl flex gawk git linux-headers \
-       musl-dev make patch python2 sed subversion tar texinfo tree vim wget &> $REDIRECT \
+       musl-dev make patch python3 sed subversion tar texinfo tree vim wget &> $REDIRECT \
 	&& apk --update add --no-cache libelf-dev --repository=http://dl-cdn.alpinelinux.org/alpine/v3.9/main \
+    && ln -sf python3 /usr/bin/python \
     && rm -rf /var/cache/apk/* \
     && printf "Done.\n" \
 \
